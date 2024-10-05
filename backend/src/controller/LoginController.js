@@ -2,6 +2,8 @@ const express = require("express");
 const User = require("../model/UserModel");
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const uploadImage = require("../services/ImageService");
+
 
 module.exports = {
     Login: async (req, res) => {
@@ -33,6 +35,7 @@ module.exports = {
 
     Register: async (req, res) => {
         try {
+            
             const { username, email, password, cpassword } = req.body;
             const userEmail = await User.findOne({ email });
             const userUsername = await User.findOne({ username });
@@ -42,8 +45,11 @@ module.exports = {
             if (userUsername) {
                 res.status(401).json({ status: false, message: "Username must be Unique" })
             }
+            req.fdn = 'users';
+            req.fieldName = 'profile_image'; 
+            const profile_image = await uploadImage(req,res);
             const userCollection = new User({
-                username, email, password
+                username, email, password,profile_image
             })
             await userCollection.generateToken();
             const user = await userCollection.save();
@@ -58,7 +64,8 @@ module.exports = {
 
     ValidUser : async (req, res) => {
         try {
-            const { _id } = req.query;
+            const  _id  = req.headers['userid'];
+            
             if (!_id) {
                 return res.status(400).json({
                     status: false,
@@ -68,7 +75,7 @@ module.exports = {
     
             // Fetch the user from the database
             const validUser = await User.findOne({ _id });
-    
+            
             if (!validUser) {
                 return res.status(401).json({
                     status: false,

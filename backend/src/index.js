@@ -4,7 +4,7 @@ const http = require("http");
 const socketio = require("socket.io");
 const cors = require("cors");
 require("./db/conn");
-const MessageRouter = require("./controller/MessageController");
+const MessageRouter = require("./routes/message");
 const loginRouter = require("./routes/user");
 const MessageModel = require("./model/MessageModel");
 

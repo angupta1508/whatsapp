@@ -10,11 +10,16 @@ const userSchema = mongoose.Schema({
     },
     email: {
         type: String,
+        unique: true,
+        lowercase:true,
         required: true,
     },
     password: {
         type: String,
         required: true,
+    },
+    profile_image:{
+        type:String,
     },
     tokens: [{
         token: {
@@ -26,7 +31,7 @@ const userSchema = mongoose.Schema({
 
 userSchema.methods.generateToken = async function (next) {
     try {
-        const token = await jwt.sign({ "_id": this._id.toString(), "username": this.username, "email": this.email }, process.env.JWT_SECRET);
+        const token = await jwt.sign({ "_id": this._id.toString(), "username": this.username, "email": this.email }, process.env.JWT_SECRET,{ expiresIn: '1h' });
         this.tokens = this.tokens.concat({token})
         await this.save();
         return token;

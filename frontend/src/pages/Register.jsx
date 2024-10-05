@@ -5,26 +5,52 @@ import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     var defaultData= {
-        username:"",email:"",password:"",cpassword:""
+        username:"",email:"",password:"",cpassword:"",profile_image:null
     }
     const [formData, setFormData] = useState(defaultData);
     const [showPass,setShowPass] = useState(false);
     const [showCPass,setCShowPass] = useState(false);
     const [errors, setErrors] = useState({});
+    const [imagepreview,setImagePreview] = useState("");
 
     const navigate = useNavigate();
 
     let URL = "http://localhost:8001";
 
     const onInputHandler = (e) => {
-        setFormData({...formData,[e.target.name] : e.target.value})
+        const { name, type, files, value } = e.target;
+        if(type === 'file')
+        {
+            const file = files[0];
+            if(file)
+            {
+                const imageUrl = window.URL.createObjectURL(file);
+                setImagePreview(imageUrl);
+                setFormData({...formData,[name] : file})
+            }
+        }else{
+            setFormData({...formData,[name] : value})
+        }
     }
 
     const formSubmit = async (e) => {
         e.preventDefault();
         try {
-            // const data = await axios.post(`${process.env.SERVER_URL}/register`,formData);
-            const data = await axios.post(`${URL}/register`,formData);
+            const formDataObj = new FormData();
+            formDataObj.append('username', formData.username);
+            formDataObj.append('email', formData.email);
+            formDataObj.append('password', formData.password);
+            formDataObj.append('cpassword', formData.cpassword);
+
+            if (formData.profile_image) {
+                formDataObj.append('profile_image', formData.profile_image);
+            }
+
+            const data = await axios.post(`${URL}/register`,formDataObj,{
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                  }
+            });
             console.log(data);
             
             if(data.data.status===true){
@@ -97,6 +123,19 @@ const Register = () => {
                                                     </div>
                                                     {errors.cpassword && <p style={{color:"red"}}>{errors.cpassword}</p>}
                                                 </div>
+
+                                                <div className="d-flex flex-row align-items-center mb-4">
+                                                    <div data-mdb-input-init className="form-outline flex-fill mb-0">
+                                                        <label className="form-label" for="form3Example3c">Profile Image</label>
+                                                        <input type="file" name='profile_image' className="form-control" onChange={onInputHandler}  />
+                                                        {errors.profile_image && <p style={{color:"red"}}>{errors.profile_image}</p>}
+                                                    </div>
+                                                </div>
+                                                {imagepreview && (
+                                                    <div >
+                                                        <img src={imagepreview}  style={{width:"100px",height:"100px"}} />
+                                                    </div>
+                                                )}
 
                                                 <div className="form-check d-flex justify-content-center mb-5">
                                                     <input className="form-check-input me-2" type="checkbox" value="" id="form2Example3c" />

@@ -19,7 +19,13 @@ const Chat = () => {
         } else {
             socketRef.current.emit("joinRoom", userId);
         }
-        fetch("http://localhost:8001/getChatHistory").then(response => response.json())  // Parse the JSON from the response
+        fetch("http://localhost:8001/getChatHistory",{
+            type:"GET",
+            headers:{
+                "Content-Type":"application/json",
+                "userId":userId
+            }
+        }).then(response => response.json())  
         .then(data => {
             setMessages(data.messages);  
         }).catch((e) => {
@@ -29,7 +35,7 @@ const Chat = () => {
 
         // Listen for incoming messages from the server
         socketRef.current.on("receiveMessage", (newMessage) => {
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
+            setMessages((prevMessages) => [...prevMessages || [], newMessage]);
         });
 
     
@@ -43,7 +49,7 @@ const Chat = () => {
         if (message.trim()) {
             
             // Emit the message to the server
-            const mesObj    =   { user_id:userId, sender_id:userId, receiver_id:2, message };
+            const mesObj    =   { user_id:userId, sender_id:userId, receiver_id:"6700b693c53de16036416c1c", message };
             socketRef.current.emit("sendMessage", mesObj,(error) => {
                 if(error){
                     console.log("Message Send Failed",error);
@@ -74,16 +80,13 @@ const Chat = () => {
 
             <div className="chat-container">
 
-            {messages.map((msg, index) => {
+            {messages && messages.length > 0 ? (messages.map((msg, index) => {
                 return ( 
                     <div key={index} className="message-box my-message">
                         <p>{msg.message}<br /><span>{msg.createdAt}</span></p>
                     </div>
                 );
-            })}
-                {/* <div className="message-box friend-message">
-                    <p>Ahh, I can't believe you do too!<br /><span>07:45</span></p>
-                </div> */}
+            })) : "No record Found"}
                 
             </div>
 

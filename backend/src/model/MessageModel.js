@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const User = require("../model/UserModel.js");
 
 const MessageSchema = mongoose.Schema({
     user_id: {
@@ -6,11 +7,13 @@ const MessageSchema = mongoose.Schema({
         required: true
     },
     sender_id: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref:User,
         required: true
     },
     receiver_id: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref:User,
         required: true
     },
     message: {

@@ -8,12 +8,12 @@ const Start = () => {
 
   const isValid = async (userID) => {
     try {
-      console.log(userID);
-      
-      const response = await axios.get(`${URL}/valid-user`, {
-        params: { _id: userID.toString() } 
-      });
-      console.log("data", response.data);
+      const response = await axios.get(`${URL}/valid-user`,{
+        headers: {
+            "Content-Type": "application/json", 
+            "userid": userID.toString()
+          }
+    });
 
       if (!response.data.user) {
         navigate("/login");
@@ -28,6 +28,7 @@ const Start = () => {
 
   useEffect(() => {
     const userID = localStorage.getItem('userId');
+    
     if (!userID) {
       navigate("/login");
     } else {
